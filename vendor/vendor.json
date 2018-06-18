@@ -1,0 +1,19 @@
+{
+	"comment": "",
+	"ignore": "test appengine",
+	"package": [
+		{
+			"checksumSHA1": "a1RCM0uBen7oXxSa2Z93sugQxtM=",
+			"path": "github.com/facebookgo/flagconfig",
+			"revision": "22cbba9d3aa23211baf6d95cfca509a406b5c349",
+			"revisionTime": "2016-07-19T17:44:38Z"
+		},
+		{
+			"checksumSHA1": "/2SlVNGXP3Raos/EAJubSHem0TM=",
+			"path": "github.com/go-sql-driver/mysql",
+			"revision": "64db0f7ebe171b596aa9b26f39a79f7413a3b617",
+			"revisionTime": "2018-05-26T09:24:51Z"
+		}
+	],
+	"rootPath": "github.com/infinitytracking/galera-clustercheck"
+}
