@@ -4,19 +4,17 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
-	"strings"
 
+	"github.com/facebookgo/flagconfig"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
 	username              = flag.String("username", "", "MySQL Username")
 	password              = flag.String("password", "", "MySQL Password")
-	iniFile               = flag.String("inifile", "/home/clustercheck/.my.cnf", ".my.cnf file")
 	host                  = flag.String("host", "localhost", "MySQL Server")
 	port                  = flag.Int("port", 3306, "MySQL Port")
 	timeout               = flag.String("timeout", "10s", "MySQL connection timeout")
@@ -35,10 +33,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-
-	if *username == "" && *password == "" {
-		parseConfigFile()
-	}
+	flagconfig.Parse()
 
 	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/?timeout=%s", *username, *password, *host, *port, *timeout))
 	if err != nil {
@@ -64,26 +59,6 @@ func main() {
 	http.HandleFunc("/fail", fail)
 	http.HandleFunc("/up", up)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", *bindAddr, *bindPort), nil))
-}
-
-func parseConfigFile() {
-
-	content, err := ioutil.ReadFile(*iniFile)
-	if err != nil {
-		//Do something
-	}
-	lines := strings.Split(string(content), "\n")
-
-	for _, line := range lines {
-		if len(line) > 3 && line[0:4] == "user" {
-			tmp := strings.Split(line, "=")
-			*username = strings.Trim(tmp[1], " ")
-		}
-		if len(line) > 7 && line[0:8] == "password" {
-			tmp := strings.Split(line, "=")
-			*password = strings.Trim(tmp[1], " ")
-		}
-	}
 }
 
 func fail(w http.ResponseWriter, r *http.Request) {
