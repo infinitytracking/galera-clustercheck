@@ -1,0 +1,55 @@
+%define debug_package %{nil}
+Summary: Galera Cluster Check
+Name: galera-clustercheck
+Version: %version
+Release:  1
+License: Not Applicable
+Group: Development/Library
+URL: http://www.infinitycloud.com
+BuildRequires: golang
+BuildRoot: %{_tmppath}/%{name}-root
+Source0: %{name}-%{version}.tar.gz
+Requires: supervisor
+
+%define PkgSrcPath src/github.com/infinitytracking/%{name}
+
+%description
+This package contains the prometheus nginx exporter.
+
+%prep
+%setup -q
+
+%build
+#Create a src directory then move all project directories and go files into it (excluding conf).
+#Then set the current directory as GOPATH and enable vendoring experiment.
+mkdir -p %{PkgSrcPath}
+mv `find . -maxdepth 1 -type d ! -name src ! -name conf ! -name .` %{PkgSrcPath}
+mv `find . -maxdepth 1 -type f -name *.go` %{PkgSrcPath}
+export GOPATH=`pwd`
+
+#Use go install to build all project programs, but exclude the vendor directory.
+go install -v $(go list ./... | grep -v %{name}/vendor/)
+
+%install
+[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+
+# Install app files
+install -d -m 755 $RPM_BUILD_ROOT/usr/sbin
+install -m 755 bin/galera-clustercheck $RPM_BUILD_ROOT/usr/sbin/galera-clustercheck
+
+# Install config files
+install -d -m 755 $RPM_BUILD_ROOT/etc/infinity
+install -m 644 conf/galera-clustercheck.conf $RPM_BUILD_ROOT/etc/infinity/galera-clustercheck.conf
+
+# Install supervisord config files
+install -d -m 755 $RPM_BUILD_ROOT/etc/supervisord.d
+install -m 644 conf/galera-clustercheck.supervisord $RPM_BUILD_ROOT/etc/supervisord.d/galera-clustercheck.ini
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root,-)
+%config(noreplace) /etc/infinity/galera-clustercheck.conf
+%config(noreplace) /etc/supervisord.d/galera-clustercheck.ini
+/usr/sbin/galera-clustercheck

@@ -1,0 +1,7 @@
+[program:galera-clustercheck]
+autostart=true
+autorestart=true
+user=nobody
+command=/usr/sbin/galera-clustercheck -c /etc/infinity/galera-clustercheck.conf
+stdout_logfile=syslog
+stderr_logfile=syslog
